@@ -6,6 +6,33 @@
 
 Sistema backend para gerenciamento de catálogo de mídias (filmes e séries) e listas de favoritos de usuários, implementado com as melhores práticas de desenvolvimento e arquitetura de software.
 
+---
+
+## 🗂 Banco de Dados PostgreSQL
+
+Este projeto utiliza PostgreSQL como banco de dados relacional para armazenar as informações de catálogo e favoritos.
+
+Para uma explicação detalhada da estrutura do banco, incluindo fluxogramas e modelos entidade-relacionamento, acesse o exemplo completo e documentação no link abaixo:
+
+👉 [Exemplo e explicação do banco PostgreSQL com fluxograma](https://github.com/Vidigal-code/sky-challenge/tree/main/example/dbexamplefluxograma)
+
+Nesse diretório você encontrará:
+
+- Diagramas MER e fluxogramas usando Mermaid para visualizar a estrutura do banco.
+- Documentação explicando o modelo de dados e relacionamentos.
+
+O arquivo `.env` contém as variáveis de ambiente necessárias para configurar o PostgreSQL. Crie um arquivo chamado `.env` na raiz do projeto com o seguinte conteúdo, baseado no exemplo fornecido:
+
+```env
+POSTGRES_USER=vidigal
+POSTGRES_PASSWORD=test1234
+POSTGRES_DB=media_db
+POSTGRES_HOST=0.0.0.0
+POSTGRES_PORT=5432
+```
+
+---
+
 ## 🚀 Tecnologias e Arquitetura
 
 - **Node.js** + **TypeScript** - Base sólida e type-safe
