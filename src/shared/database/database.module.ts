@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { Favorites } from '@/domain/favorites/favorite.entity';
-import { Users } from '@/domain/users/user.entity';
-import { Medias } from '@/domain/medias/media.entity';
-import { Langs } from '@/domain/langs/lang.entity';
-import { Genres } from '@/domain/genres/genre.entity';
+import { Favorites } from '@/domain/entities/favorites/favorite.entity';
+import { Users } from '@/domain/entities/users/user.entity';
+import { Medias } from '@/domain/entities/medias/media.entity';
+import { Langs } from '@/domain/entities/langs/lang.entity';
+import { Genres } from '@/domain/entities/genres/genre.entity';
 
 @Module({
     imports: [

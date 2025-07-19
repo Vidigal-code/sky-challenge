@@ -1,12 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Langs } from '../langs/lang.entity';
+import { Favorites } from '../favorites/favorite.entity';
 
 @Entity('users')
 export class Users {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ length: 500 })
+    @Column({ name: 'full_name', length: 500 })
     fullName: string;
 
     @Column({ length: 500, unique: true })
@@ -42,13 +43,14 @@ export class Users {
     @Column({ length: 500, nullable: true })
     state: string;
 
-    @Column({ length: 500, nullable: true })
+    @Column({ length: 500, nullable: true, name: 'postal_code' })
     postalCode: string;
 
-    @Column({ nullable: true })
+    @Column({ name: 'lang_code', nullable: true, length: 5 })
     langCode: string;
 
-    @ManyToOne(() => Langs, { onDelete: 'SET NULL' })
+    @ManyToOne(() => Langs, lang => lang.users, { onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'lang_code' })
     lang: Langs;
 
     @Column({ length: 10, default: 'user' })
@@ -57,21 +59,24 @@ export class Users {
     @Column({ length: 20, default: 'super I' })
     plan: 'super I' | 'super II' | 'top II';
 
-    @Column({ length: 500 })
+    @Column({ name: 'plan_value', length: 500 })
     planValue: string;
 
-    @Column({ length: 500, nullable: true })
+    @Column({ name: 'has_special_needs', length: 500, nullable: true })
     hasSpecialNeeds: string;
 
-    @Column({ length: 500, nullable: true })
+    @Column({ name: 'special_needs_description', length: 500, nullable: true })
     specialNeedsDescription: string;
 
     @Column({ length: 500, nullable: true })
     gender: string;
 
-    @Column({ type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ name: 'created_at', type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
 
-    @Column({ type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ name: 'updated_at', type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
+
+    @OneToMany(() => Favorites, favorite => favorite.user)
+    favorites: Favorites[];
 }
