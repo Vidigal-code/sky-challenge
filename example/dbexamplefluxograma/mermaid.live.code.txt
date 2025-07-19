@@ -1,0 +1,67 @@
+erDiagram
+    Langs {
+        VARCHAR(5) lang_code PK "Chave do Idioma (ex: 'pt')"
+        VARCHAR(500) description "Descrição do Idioma"
+    }
+
+    Genres {
+        BIGSERIAL id PK "ID único do Gênero"
+        VARCHAR(500) genre_name "Nome do Gênero"
+        VARCHAR(5) lang_code FK "Idioma do Gênero"
+    }
+
+    Users {
+        BIGSERIAL id PK "ID único do Usuário"
+        VARCHAR(500) full_name "Nome Completo"
+        VARCHAR(500) email "E-mail (único)"
+        VARCHAR(500) password "Senha (hash)"
+        VARCHAR(14) cpf "CPF (único)"
+        VARCHAR(20) rg "RG"
+        VARCHAR(20) phone "Telefone"
+        VARCHAR(255) street "Rua"
+        VARCHAR(10) number "Número"
+        VARCHAR(500) complement "Complemento"
+        VARCHAR(500) neighborhood "Bairro"
+        VARCHAR(500) city "Cidade"
+        VARCHAR(500) state "Estado"
+        VARCHAR(500) postal_code "CEP"
+        VARCHAR(5) lang_code FK "Idioma de preferência"
+        VARCHAR(10) role "Papel (user, admin)"
+        VARCHAR(20) plan "Plano Assinado"
+        VARCHAR(500) plan_value "Valor do Plano"
+        VARCHAR(500) has_special_needs "Possui necessidades especiais?"
+        VARCHAR(500) special_needs_description "Descrição das necessidades"
+        VARCHAR(500) gender "Gênero"
+        TIMESTAMP created_at "Data de Criação"
+        TIMESTAMP updated_at "Data de Atualização"
+    }
+
+    Medias {
+        BIGSERIAL id PK "ID único da Mídia"
+        VARCHAR(500) title "Título"
+        TEXT description "Descrição"
+        VARCHAR(10) type "Tipo (movie, series)"
+        INTEGER release_year "Ano de Lançamento"
+        VARCHAR(255) genre "Nome do Gênero (denormalizado)"
+        BIGINT genre_id FK "ID do Gênero"
+        VARCHAR(5) lang_code FK "Idioma da Mídia"
+        TEXT image_url "URL da Imagem"
+        TEXT trailer_url "URL do Trailer"
+        DATE release_date "Data de Lançamento"
+        TIMESTAMP created_at "Data de Criação"
+        TIMESTAMP updated_at "Data de Atualização"
+    }
+
+    Favorites {
+        BIGSERIAL id PK "ID único do Favorito"
+        BIGINT user_id FK "ID do Usuário"
+        BIGINT media_id FK "ID da Mídia"
+        TIMESTAMP created_at "Data de Criação"
+    }
+
+    Langs ||--o{ Genres : "define idioma para"
+    Langs ||--o{ Users : "é preferido por"
+    Langs ||--o{ Medias : "está disponível em"
+    Genres ||--o{ Medias : "categoriza"
+    Users ||--|{ Favorites : "possui"
+    Medias ||--|{ Favorites : "é favoritado em"
