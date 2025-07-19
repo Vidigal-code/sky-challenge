@@ -21,7 +21,11 @@ Nesse diretório você encontrará:
 - Diagramas MER e fluxogramas usando Mermaid para visualizar a estrutura do banco.
 - Documentação explicando o modelo de dados e relacionamentos.
 
-O arquivo `.env` contém as variáveis de ambiente necessárias para configurar o PostgreSQL. Crie um arquivo chamado `.env` na raiz do projeto com o seguinte conteúdo, baseado no exemplo fornecido:
+---
+
+## ⚙️ Configurações do Projeto
+
+Para que o projeto funcione corretamente, é necessário criar um arquivo `.env` na raiz do projeto com as seguintes configurações:
 
 ```env
 POSTGRES_USER=vidigal
@@ -29,6 +33,10 @@ POSTGRES_PASSWORD=test1234
 POSTGRES_DB=media_db
 POSTGRES_HOST=0.0.0.0
 POSTGRES_PORT=5432
+BACKEND_PORT=3000
+BACKEND_LOGS=FALSE
+BACKEND_HOST=localhost
+BACKEND_HTTPS=FALSE
 ```
 
 ---
