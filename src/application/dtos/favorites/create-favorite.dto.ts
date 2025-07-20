@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateFavoriteDto {
-    @IsNotEmpty()
-    @IsNumber()
-    mediaId: number;
+  @IsNotEmpty()
+  @IsNumber()
+  mediaId: number;
 }

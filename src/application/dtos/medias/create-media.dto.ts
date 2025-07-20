@@ -1,50 +1,49 @@
 import {
-    IsString,
-    IsNotEmpty,
-    IsIn,
-    IsInt,
-    Min,
-    Max,
-    IsOptional,
-    IsUrl,
-    IsDateString,
+  IsString,
+  IsNotEmpty,
+  IsInt,
+  IsOptional,
+  IsIn,
+  IsUrl,
+  IsDateString,
 } from 'class-validator';
 
 export class CreateMediaDto {
-    @IsString()
-    @IsNotEmpty()
-    title: string;
+  @IsString()
+  @IsNotEmpty()
+  title: string;
 
-    @IsString()
-    @IsOptional()
-    description?: string;
+  @IsString()
+  @IsOptional()
+  description?: string;
 
-    @IsString()
-    @IsIn(['movie', 'series'])
-    type: 'movie' | 'series';
+  @IsString()
+  @IsIn(['movie', 'series'])
+  type: 'movie' | 'series';
 
-    @IsInt()
-    @Min(1900)
-    @Max(new Date().getFullYear() + 1)
-    releaseYear: number;
+  @IsInt()
+  releaseYear: number;
 
-    @IsString()
-    @IsNotEmpty()
-    genre: string;
+  @IsString()
+  @IsNotEmpty()
+  genre: string;
 
-    @IsOptional()
-    @IsString()
-    langCode?: string;
+  @IsInt()
+  genreId: number;
 
-    @IsOptional()
-    @IsUrl()
-    imageUrl?: string;
+  @IsString()
+  @IsOptional()
+  langCode?: string;
 
-    @IsOptional()
-    @IsUrl()
-    trailerUrl?: string;
+  @IsUrl()
+  @IsOptional()
+  imageUrl?: string;
 
-    @IsOptional()
-    @IsDateString()
-    releaseDate?: string;
+  @IsUrl()
+  @IsOptional()
+  trailerUrl?: string;
+
+  @IsOptional()
+  @IsDateString()
+  releaseDate?: string;
 }

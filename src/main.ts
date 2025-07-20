@@ -1,28 +1,35 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
 
-    const app = await NestFactory.create(AppModule, {
-        logger: process.env.BACKEND_LOGS === 'TRUE' ? ['error', 'warn', 'log'] : false,
-    });
+  const configService = app.get(ConfigService);
 
-    const configService = app.get(ConfigService);
-    const host = configService.get<string>('BACKEND_HOST', 'localhost');
-    const port = configService.get<number>('BACKEND_PORT', 3000);
-    const httpsEnabled = configService.get<boolean>('BACKEND_HTTPS', false);
+  const backendLogs =
+    configService.get<string>('BACKEND_LOGS')?.toLowerCase() === 'true';
+  app.useLogger(backendLogs ? ['log', 'warn', 'error'] : false);
 
-    app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  const port = configService.get<number>('BACKEND_PORT') || 3000;
+  const host = configService.get<string>('BACKEND_HOST') || 'localhost';
+  const httpsEnabled =
+    configService.get<string>('BACKEND_HTTPS')?.toLowerCase() === 'true';
 
-    if (httpsEnabled) {
-        Logger.log('HTTPS is disabled', 'Bootstrap');
-    }
+  await app.listen(port);
 
-    await app.listen(port, host);
-    Logger.log(`Application is running on http://${host}:${port}`, 'Bootstrap');
+  function green(text: string): string {
+    return `\x1b[32m${text}\x1b[0m`;
+  }
+
+  const protocol = httpsEnabled ? 'https' : 'http';
+
+  console.log(
+    green(
+      `\nServidor rodando em ${protocol}://${host}:${port}, Criador por https://github.com/Vidigal-code`
+    ),
+    green('sky-challenge\n')
+  );
 }
 
 bootstrap();

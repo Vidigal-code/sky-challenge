@@ -31,12 +31,13 @@ Para que o projeto funcione corretamente, é necessário criar um arquivo `.env`
 POSTGRES_USER=vidigal
 POSTGRES_PASSWORD=test1234
 POSTGRES_DB=media_db
-POSTGRES_HOST=0.0.0.0
+POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
+
 BACKEND_PORT=3000
-BACKEND_LOGS=FALSE
+BACKEND_LOGS=false
 BACKEND_HOST=localhost
-BACKEND_HTTPS=FALSE
+
 ```
 
 ---
@@ -69,12 +70,67 @@ BACKEND_HTTPS=FALSE
 - Repositórios para abstração de persistência
 - Services de domínio e aplicação
 
+# Arquitetura do Projeto: Um Ponto de Partida Sólido para DDD
+
+Este documento resume o estado atual da arquitetura do projeto e serve como um guia para sua evolução.
+
+A arquitetura atual **é uma excelente base inicial** para um projeto que pretende escalar, pois já adota práticas fundamentais do **Domain-Driven Design (DDD)** e da **Clean Architecture**. Ela não é apenas um protótipo, mas uma fundação robusta pronta para crescer.
+
+## ✅ O Que Já Temos (Boas Práticas DDD Implementadas)
+
+A estrutura atual segue princípios essenciais que garantem organização, testabilidade e baixo acoplamento:
+
+1.  **Separação Clara de Camadas (`Domain`, `Application`, `Infrastructure`)**:
+    -   A lógica de negócio (`Domain`) está isolada de detalhes técnicos, como o banco de dados ou a API REST (`Infrastructure`).
+    -   Os casos de uso (`Application`) orquestram o fluxo, conectando o mundo externo com o domínio.
+
+2.  **Inversão de Dependência (`Dependency Inversion Principle`)**:
+    -   As camadas de negócio dependem de **abstrações** (interfaces como `MediaRepository`), não de implementações concretas (`TypeOrmMediaRepository`).
+    -   Isso torna a aplicação flexível para trocar tecnologias (ex: trocar o banco de dados) sem impactar as regras de negócio.
+
+3.  **Exceções de Domínio (`Domain-Specific Exceptions`)**:
+    -   Erros de negócio são tratados de forma explícita (ex: `MediaNotFoundError`, `LangNotFoundError`), tornando a comunicação entre as camadas clara e significativa.
+
+4.  **Estrutura Modular e Coesa**:
+    -   O uso de módulos do NestJS (`MediaModule`, `LangModule`) agrupa as responsabilidades de cada domínio, facilitando a manutenção e a adição de novas funcionalidades.
+
+## 🚀 Roteiro para uma Arquitetura DDD Completa
+
+Para evoluir a arquitetura e lidar com o aumento da complexidade do negócio, os seguintes padrões táticos de DDD são os próximos passos naturais. Eles complementam e fortalecem a base já existente.
+
+### 1. Centralização do Tratamento de Erros (Exception Filters)
+-   **O que falta:** A lógica de `try...catch` está replicada em cada método do `MediaController`.
+-   **Ação:** Criar um **`ExceptionFilter`** global no NestJS para capturar as exceções de domínio e mapeá-las para respostas HTTP.
+-   **Benefício Imediato:** Remove código repetitivo dos controllers, deixando-os mais limpos e focados em receber requisições e retornar respostas.
+
+### 2. Enriquecimento do Domínio (Value Objects)
+-   **O que falta:** Conceitos de negócio são representados por tipos primitivos (ex: `releaseYear` como `number`).
+-   **Ação:** Criar classes imutáveis (Value Objects) para esses conceitos, como `class ReleaseYear` ou `class Title`, que validam a si mesmas na criação.
+-   **Benefício:** Garante que um dado de domínio nunca exista em um estado inválido e torna o código mais expressivo e seguro.
+
+### 3. Delimitação de Transações (Aggregates)
+-   **O que falta:** Uma definição explícita dos limites que garantem a consistência de um grupo de entidades relacionadas.
+-   **Ação:** Definir **Agregados** e suas **Raízes de Agregado**. Por exemplo, se uma `Serie` tem `Temporadas`, a entidade `Serie` seria a raiz. O acesso e a modificação de `Temporadas` deveriam ocorrer **apenas** através de métodos na entidade `Serie`.
+-   **Benefício:** Protege as regras de negócio e garante a integridade dos dados em operações complexas.
+
+### 4. Desacoplamento de Efeitos Colaterais (Domain Events)
+-   **O que falta:** Ações secundárias (como enviar uma notificação após a criação de uma mídia) estão acopladas ao fluxo principal do caso de uso.
+-   **Ação:** Disparar **Eventos de Domínio** (ex: `MediaCreatedEvent`) quando algo importante acontece. Outras partes do sistema podem "ouvir" esses eventos e reagir a eles de forma desacoplada.
+-   **Benefício:** Aumenta a escalabilidade e a manutenibilidade, permitindo que novas funcionalidades sejam adicionadas sem alterar o código existente.
+
+## Conclusão
+
+A arquitetura atual é o ponto de partida ideal. Ela permite adicionar novos endpoints e domínios seguindo o mesmo padrão de alta qualidade. Os pontos do roteiro acima não são correções, mas sim **estratégias de evolução** a serem aplicadas conforme a necessidade e a complexidade do projeto aumentarem.
+
 ## 🎯 Funcionalidades
 
 ### **Catálogo de Mídias** (`/media`)
 - ✅ **POST** - Adicionar filme/série ao catálogo
 - ✅ **GET** - Listar todo o catálogo
 - ✅ **GET** `/:id` - Buscar mídia específica
+
+👉 [Exemplos e Explicações dos Endpoints de Mídia ](https://)
+
 
 ### **Favoritos do Usuário** (`/users/:userId/favorites`)
 - ✅ **POST** - Adicionar mídia aos favoritos
@@ -101,7 +157,7 @@ docker-compose up -d
 npm run test
 
 # Acessar documentação
-http://localhost:3000/api
+http://localhost:3000
 ```
 
 ## 📐 Estrutura do Projeto

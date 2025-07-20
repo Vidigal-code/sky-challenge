@@ -5,18 +5,18 @@ import { Medias } from '../medias/media.entity';
 
 @Entity('langs')
 export class Langs {
-    @PrimaryColumn({ name: 'lang_code', length: 5 })
-    langCode: string;
+  @PrimaryColumn({ name: 'lang_code', length: 5 })
+  langCode: string;
 
-    @Column({ length: 500 })
-    description: string;
+  @Column({ length: 500 })
+  description: string;
 
-    @OneToMany(() => Genres, genre => genre.lang)
-    genres: Genres[];
+  @OneToMany(() => Genres, (genre) => genre.lang)
+  genres: Genres[];
 
-    @OneToMany(() => Users, user => user.lang)
-    users: Users[];
+  @OneToMany(() => Users, (user) => user.lang)
+  users: Users[];
 
-    @OneToMany(() => Medias, media => media.lang)
-    medias: Medias[];
+  @OneToMany(() => Medias, (media) => media.lang)
+  medias: Medias[];
 }

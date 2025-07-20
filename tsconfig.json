@@ -6,7 +6,7 @@
     "lib": ["es2020", "dom"],
     "declaration": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -27,8 +27,14 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "types": ["jest", "node"]
   },
-  "include": ["src/**/*", "test/**/*"],
+  "include": [
+    "src/**/*",
+    "test/**/*",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }
