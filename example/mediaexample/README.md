@@ -216,6 +216,9 @@ Busca uma mídia específica pelo seu `id`.
 
 ---
 
+## 🔍 GET `/media/40`
+
+
 ### ❌ Erro `404 Not Found` – ID inexistente
 
 ```json
@@ -289,6 +292,9 @@ Busca mídias por código de idioma (ex: `pt`, `en`, `es`).
 ![Visualizar Insomnia Media Get Lang (PNG)](insomniamediaprintpng/get_lang.png)
 
 ---
+
+## 🔍 GET `/media/lang/invalid`
+
 
 ### ❌ Erro `404 Not Found` – Idioma inválido
 
