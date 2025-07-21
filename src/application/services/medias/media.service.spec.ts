@@ -6,7 +6,6 @@ import { CreateMediaDto } from '@/application/dtos/medias/create-media.dto';
 import { Medias } from '@/domain/entities/medias/media.entity';
 import {
   MediaNotFoundError,
-  //MediaAlreadyExistsError,
   MediaInvalidDataError,
   MediaUnexpectedError,
 } from '@/domain/exceptions/medias/media-domain.errors';
@@ -62,6 +61,10 @@ describe('MediaService', () => {
     langRepository = module.get('LangRepository');
   });
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('create', () => {
     it('should create a media successfully', async () => {
       const createMediaDto: CreateMediaDto = {
@@ -71,6 +74,7 @@ describe('MediaService', () => {
         releaseYear: 2021,
         genre: 'Action',
         genreId: 1,
+        langCode: 'en',
       };
 
       const createdMedia = new Medias();
@@ -85,13 +89,10 @@ describe('MediaService', () => {
 
       expect(result.success).toBe(true);
       expect(result.data?.media).toEqual(createdMedia);
-      /*expect(mediaRepository.findByTitle).toHaveBeenCalledWith(
-        createMediaDto.title
-      );*/
-
       expect(mediaRepository.create).toHaveBeenCalled();
       expect(logger.log).toHaveBeenCalledWith(
-        `Mídia criada com sucesso: ${createdMedia.id}`
+        `Mídia criada com sucesso: ${createdMedia.id}`,
+        'MediaService'
       );
     });
 
@@ -107,6 +108,11 @@ describe('MediaService', () => {
       await expect(
         service.create(createMediaDto, '/media', 'POST')
       ).rejects.toThrow(MediaInvalidDataError);
+      expect(logger.error).toHaveBeenCalledWith(
+        'Erro ao criar mídia: dados inválidos',
+        expect.any(MediaInvalidDataError),
+        'MediaService'
+      );
     });
 
     // Comentado pois a verificação de mídia existente foi desativada
@@ -140,7 +146,10 @@ describe('MediaService', () => {
       expect(result.success).toBe(true);
       expect(result.data?.medias).toEqual(medias);
       expect(mediaRepository.findAll).toHaveBeenCalled();
-      expect(logger.log).toHaveBeenCalledWith('Buscando todas as mídias');
+      expect(logger.log).toHaveBeenCalledWith(
+        'Buscando todas as mídias',
+        'MediaService'
+      );
     });
 
     it('should handle unexpected errors', async () => {
@@ -152,7 +161,8 @@ describe('MediaService', () => {
 
       expect(logger.error).toHaveBeenCalledWith(
         'Erro ao buscar mídias',
-        expect.any(Error)
+        expect.any(Error),
+        'MediaService'
       );
     });
   });
@@ -168,7 +178,10 @@ describe('MediaService', () => {
       expect(result.success).toBe(true);
       expect(result.data?.media).toEqual(media);
       expect(mediaRepository.findById).toHaveBeenCalledWith(1);
-      expect(logger.log).toHaveBeenCalledWith('Buscando mídia com id: 1');
+      expect(logger.log).toHaveBeenCalledWith(
+        'Buscando mídia com id: 1',
+        'MediaService'
+      );
     });
 
     it('should throw MediaNotFoundError when media not found', async () => {
@@ -178,8 +191,10 @@ describe('MediaService', () => {
         MediaNotFoundError
       );
 
-      expect(logger.warn).toHaveBeenCalledWith(
-        'Mídia não encontrada para id: 1'
+      expect(logger.error).toHaveBeenCalledWith(
+        `Mídia não encontrada para id: 1`,
+        expect.any(MediaNotFoundError),
+        'MediaService'
       );
     });
   });
@@ -198,7 +213,10 @@ describe('MediaService', () => {
       expect(result.data?.medias).toEqual(medias);
       expect(langRepository.findByLangCode).toHaveBeenCalledWith('pt');
       expect(mediaRepository.findAllByLang).toHaveBeenCalledWith('pt');
-      expect(logger.log).toHaveBeenCalledWith('Buscando mídias com idioma: pt');
+      expect(logger.log).toHaveBeenCalledWith(
+        'Buscando mídias com idioma: pt',
+        'MediaService'
+      );
     });
 
     it('should handle unexpected errors', async () => {
@@ -212,7 +230,8 @@ describe('MediaService', () => {
 
       expect(logger.error).toHaveBeenCalledWith(
         'Erro ao buscar mídias por idioma pt',
-        expect.any(Error)
+        expect.any(Error),
+        'MediaService'
       );
     });
 
@@ -226,7 +245,8 @@ describe('MediaService', () => {
       expect(langRepository.findByLangCode).toHaveBeenCalledWith('invalid');
       expect(logger.error).toHaveBeenCalledWith(
         'LangCode invalid não existe.',
-        expect.any(LangNotFoundError)
+        expect.any(LangNotFoundError),
+        'MediaService'
       );
     });
   });

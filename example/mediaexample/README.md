@@ -473,13 +473,13 @@ BACKEND_LOGS=true
 
 ## ✅ LOGS MEDIA SUCESS IMAGE PRINT PNG
 
-![Media Logger Sucess (PNG)](printloggerspng/medialoggersucess.png)
+![Media Logger Sucess (PNG)](printmedialoggerspng/medialoggersucess.png)
 
 ---
 
 ## ❌  LOGS MEDIA ERRO IMAGE PRINT PNG
 
-![Media Logger Erro (PNG)](printloggerspng/medialoggererro.png)
+![Media Logger Erro (PNG)](printmedialoggerspng/medialoggererro.png)
 
 ---
 

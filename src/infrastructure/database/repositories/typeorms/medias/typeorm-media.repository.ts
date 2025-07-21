@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Medias } from '@/domain/entities/medias/media.entity';
 import { MediaRepository } from '@/domain/repositories/medias/media.repository';
 
@@ -31,5 +31,11 @@ export class TypeOrmMediaRepository implements MediaRepository {
 
   async findByTitle(title: string): Promise<Medias | null> {
     return this.ormRepository.findOneBy({ title });
+  }
+
+  async findByIds(ids: number[]): Promise<Medias[]> {
+    return this.ormRepository.find({
+      where: { id: In(ids) },
+    });
   }
 }

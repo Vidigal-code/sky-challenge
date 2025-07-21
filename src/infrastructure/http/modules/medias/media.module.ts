@@ -1,15 +1,21 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Medias } from '@/domain/entities/medias/media.entity';
 import { MediaController } from '@/infrastructure/http/controllers/medias/media.controller';
 import { MediaService } from '@/application/services/medias/media.service';
-import { TypeOrmMediaRepository } from '@/infrastructure/database/repositories/medias/typeorm-media.repository';
-import { Medias } from '@/domain/entities/medias/media.entity';
 import { ResponseMapperMediaService } from '@/application/services/medias/response-mapper-media.service';
 import { LoggerModule } from '@/shared/modules/loggers/logger.module';
 import { LangModule } from '@/infrastructure/http/modules/langs/lang.module';
+import { FavoriteModule } from '@/infrastructure/http/modules/favorites/favorite.module';
+import { TypeOrmMediaRepository } from '@/infrastructure/database/repositories/typeorms/medias/typeorm-media.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Medias]), LoggerModule, LangModule],
+  imports: [
+    TypeOrmModule.forFeature([Medias]),
+    LoggerModule,
+    LangModule,
+    forwardRef(() => FavoriteModule),
+  ],
   controllers: [MediaController],
   providers: [
     MediaService,
@@ -19,5 +25,6 @@ import { LangModule } from '@/infrastructure/http/modules/langs/lang.module';
       useClass: TypeOrmMediaRepository,
     },
   ],
+  exports: ['MediaRepository'],
 })
 export class MediaModule {}

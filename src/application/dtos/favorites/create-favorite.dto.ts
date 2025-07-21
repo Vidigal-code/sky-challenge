@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsInt, Min } from 'class-validator';
 
 export class CreateFavoriteDto {
-  @IsNotEmpty()
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   mediaId: number;
 }

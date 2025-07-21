@@ -6,7 +6,6 @@ import { AppLoggerService } from '@/shared/services/loggers/logger.service';
 import { MediaMessageSuccess } from '@/shared/responses/medias/media-message-success';
 import {
   MediaNotFoundError,
-  //MediaAlreadyExistsError,
   MediaInvalidDataError,
   MediaUnexpectedError,
   MediaDomainError,
@@ -44,8 +43,7 @@ export class MediaService {
           this.context
         );
         throw error;
-      }
-      /*const existingMedia = await this.mediaRepository.findByTitle(
+      } /*const existingMedia = await this.mediaRepository.findByTitle(
         createMediaDto.title
       );
       if (existingMedia) {

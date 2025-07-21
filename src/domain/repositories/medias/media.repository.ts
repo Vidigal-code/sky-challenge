@@ -10,4 +10,6 @@ export abstract class MediaRepository {
   abstract findAllByLang(langCode: string): Promise<Medias[]>;
 
   abstract findByTitle(title: string): Promise<Medias | null>;
+
+  abstract findByIds(ids: number[]): Promise<Medias[]>;
 }
