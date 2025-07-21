@@ -145,6 +145,9 @@ A arquitetura atual é o ponto de partida ideal. Ela permite adicionar novos end
 - ✅ **GET** - Listar favoritos do usuário
 - ✅ **DELETE** `/:mediaId` - Remover dos favoritos
 
+👉 [Exemplos e Explicações dos Endpoints de Favoritos ](https://github.com/Vidigal-code/sky-challenge/tree/main/example/favoriteexample)
+
+
 ## 🔧 Recursos Técnicos
 
 - 📦 **Containerização** completa com Docker
@@ -181,3 +184,97 @@ src/
 ---
 
 *Desenvolvido seguindo as melhores práticas de **Clean Code**, **SOLID** e **DDD** para garantir código maintível, testável e escalável.*
+
+# 🧪 Testes Automatizados com Jest - Módulos de Mídias e Favoritos
+
+Este documento descreve os testes automatizados para os módulos de **Mídias** e **Favoritos**, utilizando o framework [Jest](https://jestjs.io/) com a abordagem **TDD** (Test Driven Development). Os testes garantem confiabilidade e robustez para as funcionalidades de gerenciamento de mídias e favoritos na aplicação.
+
+---
+
+## ✅ O que os testes cobrem?
+
+### 🔧 MediaService (`media.service.spec.ts`)
+
+Testa a lógica de negócio da camada de serviço para mídias.
+
+- **Criação de mídias**: Sucesso com dados válidos; lança `MediaInvalidDataError` para título inválido; (comentado) `MediaAlreadyExistsError` para mídia existente.
+- **Busca de mídias**: Retorna todas as mídias ou por ID; lança `MediaNotFoundError` se não encontrada; `MediaUnexpectedError` para erros inesperados.
+- **Busca por idioma (`langCode`)**: Retorna mídias por idioma; lança `LangNotFoundError` se idioma não existe.
+
+### 🕹️ MediaController (`media.controller.spec.ts`)
+
+Testa a camada de controle para requisições HTTP de mídias.
+
+- **Criação**: Retorna `201 Created` para sucesso; `409 Conflict` para mídia existente; `404 Not Found` para erros.
+- **Listagem**: Retorna `200 OK` com todas as mídias.
+- **Consulta por ID/idioma**: Retorna `200 OK` ou `404 Not Found` com erros específicos.
+
+---
+
+### 🔧 FavoriteService (`favorite.service.spec.ts`)
+
+Testa a lógica de negócio da camada de serviço para favoritos.
+
+- **Criação de favoritos**: Sucesso com usuário e mídia válidos; lança `UserNotFoundError`, `MediaNotFoundError` ou `FavoriteAlreadyExistsError`.
+- **Busca de favoritos**: Retorna mídias favoritas de um usuário; lança `UserNotFoundError` se usuário não existe.
+- **Remoção de favoritos**: Sucesso ao remover; lança `UserNotFoundError` ou `FavoriteNotFoundError`.
+
+### 🕹️ FavoriteController (`favorite.controller.spec.ts`)
+
+Testa a camada de controle para requisições HTTP de favoritos.
+
+- **Criação**: Retorna `204 No Content` para sucesso; `404 Not Found` ou `409 Conflict` para erros.
+- **Listagem**: Retorna `200 OK` com favoritos; `404 Not Found` para usuário inexistente.
+- **Remoção**: Retorna `204 No Content` ou `404 Not Found` para erros.
+
+---
+
+## 🧪 Ferramentas e Tecnologias
+
+- **Jest**: Framework de testes.
+- **@nestjs/testing**: Suporte para testes em NestJS.
+- **Mocks**: Isolamento de dependências com `jest.fn()`.
+- **DTOs e Entidades**: Simulação de dados reais.
+- **ResponseMapper**: Padronização de respostas de sucesso e erro.
+
+---
+
+## 📝 Observações
+
+- Testes **unitários**, sem chamadas reais a banco de dados ou APIs.
+- Foco em casos críticos com tratamento de exceções personalizadas.
+- Respostas padronizadas via `ResponseMapper`/`ResponseMapperFavoriteService`.
+
+---
+
+## 🚀 Execução dos Testes
+
+Rodar testes localmente:
+
+```bash
+npm test
+# ou
+pnpm test
+```
+
+Com cobertura:
+
+```bash
+npm test -- --coverage
+```
+
+---
+
+## 🔒 Cobertura de Segurança
+
+- Validação de dados (usuário, mídia, título) antes da persistência.
+- Exceções específicas evitam exposição de detalhes internos.
+- Simulação de falhas para respostas consistentes.
+
+---
+
+## 📊 Exemplos de Cobertura
+
+![Jest TDD Media and Favorite (PNG)](example/tddjestmediaandfavorite/example_tdd_jest_media_favorite.png)
+
+---

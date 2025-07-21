@@ -416,6 +416,8 @@ npm  test
 
 ---
 
+## 📊 Exemplo de Cobertura
+
 ![Jest TDD Media (PNG)](printmediapngexamplejest/tdd-jest-media.png)
 
 ---
