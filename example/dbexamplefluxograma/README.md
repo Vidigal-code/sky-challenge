@@ -41,7 +41,7 @@ O arquivo `.env` contém as variáveis de ambiente necessárias para configurar 
 POSTGRES_USER=vidigal
 POSTGRES_PASSWORD=test1234
 POSTGRES_DB=media_db
-POSTGRES_HOST=0.0.0.0
+POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 ```
 
