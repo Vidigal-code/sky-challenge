@@ -6,6 +6,12 @@
 
 Sistema backend para gerenciamento de catálogo de mídias (filmes e séries) e listas de favoritos de usuários, implementado com as melhores práticas de desenvolvimento e arquitetura de software.
 
+## 📹 Vídeo de demonstração
+
+Confira o vídeo de demonstração:
+
+- [Youtube](https://www.youtube.com/watch?v=hMeXw2gshAs&feature=youtu.be)
+
 ---
 
 ## 🗂 Banco de Dados PostgreSQL
