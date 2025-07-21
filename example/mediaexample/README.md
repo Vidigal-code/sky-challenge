@@ -169,7 +169,6 @@ Retorna todos os itens do catálogo.
 
 ---
 
----
 
 ## 🔍 GET `/media/{id}`
 
@@ -243,7 +242,7 @@ Busca uma mídia específica pelo seu `id`.
 
 ---
 
----
+
 
 ## 🌐 GET `/media/lang/{langcode}` - Extra - Endpoint
 
@@ -320,7 +319,7 @@ Busca mídias por código de idioma (ex: `pt`, `en`, `es`).
 
 ---
 
----
+
 
 # 🧪 Testes Automatizados com Jest - Módulo de Mídias
 
