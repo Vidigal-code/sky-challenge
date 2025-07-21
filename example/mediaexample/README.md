@@ -416,9 +416,71 @@ npm  test
 
 ---
 
-![Jest TDD Media (PNG)](examplejest/tdd-jest-media.png)
+![Jest TDD Media (PNG)](printmediapngexamplejest/tdd-jest-media.png)
 
 ---
 
+# 📄 Controle de Logs no `MediaService`
+
+O serviço `MediaService` utiliza o `AppLoggerService`, uma camada personalizada baseada no `Logger` do NestJS, para registrar **ações**, **advertências** e **erros** durante o ciclo de vida da aplicação.
+
+---
+
+## 🔧 Ativando os logs
+
+Para que os logs funcionem corretamente, é necessário ativar a variável de ambiente no `.env`:
+
+```env
+BACKEND_LOGS=true
+```
+
+## 📌 Logs Utilizados
+
+* **`log()`**: ações normais
+
+  ```ts
+  this.logger.log('Buscando todas as mídias', this.context);
+  ```
+
+* **`warn()`**: advertências
+
+  ```ts
+  this.logger.warn(`Mídia não encontrada para id: ${id}`, this.context);
+  ```
+
+* **`error()`**: erros
+
+  ```ts
+  this.logger.error('Erro ao criar mídia', error, this.context);
+  ```
+
+---
+
+## ⚙️ Sobre o `AppLoggerService`
+
+* Se o `context` for passado, o log mostra `[MediaService] Mensagem`.
+* Se não for passado, mostra apenas a mensagem.
+
+---
+
+## ✅ Benefícios
+
+* Centraliza e organiza logs.
+* Facilita o rastreamento e debug.
+* Usa exceções customizadas para clareza.
+
+---
+
+## ✅ LOGS MEDIA SUCESS IMAGE PRINT PNG
+
+![Media Logger Sucess (PNG)](printloggerspng/medialoggersucess.png)
+
+---
+
+## ❌  LOGS MEDIA ERRO IMAGE PRINT PNG
+
+![Media Logger Erro (PNG)](printloggerspng/medialoggererro.png)
+
+---
 
 

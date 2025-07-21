@@ -20,6 +20,8 @@ import {
 
 @Injectable()
 export class MediaService {
+  private readonly context = 'MediaService';
+
   constructor(
     @Inject('MediaRepository')
     private readonly mediaRepository: MediaRepository,
@@ -35,7 +37,13 @@ export class MediaService {
   ): Promise<SuccessResponse<{ media: Medias }>> {
     try {
       if (!createMediaDto.title || !createMediaDto.type) {
-        throw new MediaInvalidDataError();
+        const error = new MediaInvalidDataError();
+        this.logger.error(
+          'Erro ao criar mídia: dados inválidos',
+          error,
+          this.context
+        );
+        throw error;
       }
       /*const existingMedia = await this.mediaRepository.findByTitle(
         createMediaDto.title
@@ -46,13 +54,13 @@ export class MediaService {
       const newMedia = new Medias();
       Object.assign(newMedia, createMediaDto);
       const created = await this.mediaRepository.create(newMedia);
-      this.logger.log(`Mídia criada com sucesso: ${created.id}`);
+      this.logger.log(`Mídia criada com sucesso: ${created.id}`, this.context);
       return {
         ...MediaMessageSuccess.created(created.id, path, method),
         data: { media: created },
       };
     } catch (error: unknown) {
-      this.logger.error('Erro ao criar mídia', error);
+      this.logger.error('Erro ao criar mídia', error, this.context);
       throw error instanceof MediaDomainError
         ? error
         : new MediaUnexpectedError();
@@ -63,7 +71,7 @@ export class MediaService {
     path: string,
     method: string
   ): Promise<SuccessResponse<{ medias: Medias[] }>> {
-    this.logger.log('Buscando todas as mídias');
+    this.logger.log('Buscando todas as mídias', this.context);
     try {
       const medias = await this.mediaRepository.findAll();
       return {
@@ -71,7 +79,7 @@ export class MediaService {
         data: { medias },
       };
     } catch (error: unknown) {
-      this.logger.error('Erro ao buscar mídias', error);
+      this.logger.error('Erro ao buscar mídias', error, this.context);
       throw error instanceof MediaDomainError
         ? error
         : new MediaUnexpectedError();
@@ -83,19 +91,28 @@ export class MediaService {
     path: string,
     method: string
   ): Promise<SuccessResponse<{ media: Medias }>> {
-    this.logger.log(`Buscando mídia com id: ${id}`);
+    this.logger.log(`Buscando mídia com id: ${id}`, this.context);
     try {
       const media = await this.mediaRepository.findById(id);
       if (!media) {
-        this.logger.warn(`Mídia não encontrada para id: ${id}`);
-        throw new MediaNotFoundError(id);
+        const error = new MediaNotFoundError(id);
+        this.logger.error(
+          `Mídia não encontrada para id: ${id}`,
+          error,
+          this.context
+        );
+        throw error;
       }
       return {
         ...MediaMessageSuccess.retrievedOne(id, path, method),
         data: { media },
       };
     } catch (error: unknown) {
-      this.logger.error(`Erro ao buscar mídia com id: ${id}`, error);
+      this.logger.error(
+        `Erro ao buscar mídia com id: ${id}`,
+        error,
+        this.context
+      );
       throw error instanceof MediaDomainError
         ? error
         : new MediaUnexpectedError();
@@ -107,12 +124,16 @@ export class MediaService {
     path: string,
     method: string
   ): Promise<SuccessResponse<{ medias: Medias[] }>> {
-    this.logger.log(`Buscando mídias com idioma: ${langCode}`);
+    this.logger.log(`Buscando mídias com idioma: ${langCode}`, this.context);
     try {
       const lang = await this.langRepository.findByLangCode(langCode);
       if (!lang) {
         const langError = new LangNotFoundError(langCode);
-        this.logger.error(`LangCode ${langCode} não existe.`, langError);
+        this.logger.error(
+          `LangCode ${langCode} não existe.`,
+          langError,
+          this.context
+        );
         throw langError;
       }
 
@@ -122,8 +143,11 @@ export class MediaService {
         data: { medias },
       };
     } catch (error: unknown) {
-      this.logger.error(`Erro ao buscar mídias por idioma ${langCode}`, error);
-
+      this.logger.error(
+        `Erro ao buscar mídias por idioma ${langCode}`,
+        error,
+        this.context
+      );
       if (
         error instanceof MediaDomainError ||
         error instanceof LangDomainError

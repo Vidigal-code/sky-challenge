@@ -40,6 +40,14 @@ BACKEND_HOST=localhost
 
 ```
 
+## 🔧 Ativando os logs
+
+Para que os logs funcionem corretamente, é necessário ativar a variável de ambiente no `.env`:
+
+```env
+BACKEND_LOGS=true
+```
+
 ---
 
 ## 🚀 Tecnologias e Arquitetura

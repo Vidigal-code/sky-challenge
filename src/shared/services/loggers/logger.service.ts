@@ -2,28 +2,28 @@ import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class AppLoggerService {
-  private logger = new Logger('AppLoggerService');
-
-  log(message: string, context?: any) {
-    this.logger.log(
-      context ? `${message} | Context: ${JSON.stringify(context)}` : message
-    );
+  private getLogger(context?: string): Logger {
+    const combinedContext = context
+      ? `${context} AppLoggerService`
+      : 'AppLoggerService';
+    return new Logger(combinedContext);
   }
 
-  warn(message: string, context?: any) {
-    this.logger.warn(
-      context ? `${message} | Context: ${JSON.stringify(context)}` : message
-    );
+  log(message: string, context?: string) {
+    this.getLogger(context).log(message);
   }
 
-  error(message: string, error: unknown, context?: any) {
+  warn(message: string, context?: string) {
+    this.getLogger(context).warn(message);
+  }
+
+  error(message: string, error: unknown, context?: string) {
     let errorStack = '';
     if (error instanceof Error) {
       errorStack = error.stack || error.message;
     } else {
       errorStack = String(error);
     }
-    const contextStr = context ? ` | Context: ${JSON.stringify(context)}` : '';
-    this.logger.error(`${message}${contextStr}`, errorStack);
+    this.getLogger(context).error(message, errorStack);
   }
 }
