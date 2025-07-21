@@ -43,7 +43,8 @@ export class MediaService {
           this.context
         );
         throw error;
-      } /*const existingMedia = await this.mediaRepository.findByTitle(
+      }
+      /*const existingMedia = await this.mediaRepository.findByTitle(
         createMediaDto.title
       );
       if (existingMedia) {

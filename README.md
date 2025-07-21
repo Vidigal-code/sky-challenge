@@ -37,7 +37,6 @@ POSTGRES_PORT=5432
 BACKEND_PORT=3000
 BACKEND_LOGS=false
 BACKEND_HOST=localhost
-
 ```
 
 ## 🔧 Ativando os logs
@@ -130,6 +129,155 @@ Para evoluir a arquitetura e lidar com o aumento da complexidade do negócio, os
 
 A arquitetura atual é o ponto de partida ideal. Ela permite adicionar novos endpoints e domínios seguindo o mesmo padrão de alta qualidade. Os pontos do roteiro acima não são correções, mas sim **estratégias de evolução** a serem aplicadas conforme a necessidade e a complexidade do projeto aumentarem.
 
+---
+
+# 🧪 Lógica de Desenvolvimento - Passo a Passo
+
+---
+
+## 1. Banco com Docker
+
+Primeiro, configurei o PostgreSQL via Docker, garantindo que tudo fosse facilmente inicializado com um simples comando `docker compose up`.
+Incluí um `./scriptsqls/init.sql` contendo não só a criação das tabelas principais (`Langs`, `Genres`, `Users`, `Medias`, `Favorites`), mas também **inserts de dados iniciais para todas elas**, com o objetivo de facilitar o desenvolvimento e testes locais.
+Também adicionei **índices** estratégicos para melhorar a performance desde o início.
+
+---
+
+## 2. Modelagem do Banco
+
+Modelei o banco com foco em integridade e clareza. Utilizei chaves estrangeiras entre as entidades principais e criei suporte para múltiplos idiomas via tabela `Langs`.
+Para ajudar na visualização, documentei tudo com fluxogramas (diagrama entidade-relacionamento) e código Mermaid.
+
+👉 [Exemplo e explicação do banco PostgreSQL com fluxograma](https://github.com/Vidigal-code/sky-challenge/tree/main/example/dbexamplefluxograma)
+
+---
+
+## 3. Arquitetura DDD
+
+Implementei o backend usando a arquitetura DDD (Domain-Driven Design), separando as responsabilidades em:
+
+* `domain`
+* `entities`
+* `repositories`
+* `services`
+* `controllers`
+* `dtos`
+
+Isso deixou o projeto modular, limpo e pronto para crescer sem virar uma bagunça.
+
+---
+
+## 4. Endpoint `/medias`
+
+Implementei (POST, GET)  mídias com todas as validações necessárias.
+Usei o `response-mapper-media.service.ts` para padronizar as respostas da API.
+Também escrevi testes unitários com Jest e documentei tudo no Insomnia com prints das requisições e respostas.
+
+👉 [Exemplos e Explicações dos Endpoints de Mídia ](https://github.com/Vidigal-code/sky-challenge/tree/main/example/mediaexample)
+
+---
+
+## 5. Endpoint `/users/{userId}/favorites`
+
+Seguindo a mesma linha do endpoint de mídias, criei as operações (POST, GET, DELETE) de adicionar, listar e remover favoritos de um usuário.
+Mantive a padronização de validações, testes e documentação, garantindo consistência entre endpoints.
+
+👉 [Exemplos e Explicações dos Endpoints de Favoritos ](https://github.com/Vidigal-code/sky-challenge/tree/main/example/favoriteexample)
+
+---
+
+## 6. Múltiplos Idiomas
+
+Implementei suporte para múltiplos idiomas (`pt`, `en`, `es`) de forma flexível com a tabela `Langs`. 
+
+---
+
+## 7. Execução
+
+Toda a aplicação é containerizada. Para rodar, basta executar:
+
+```bash
+docker compose up --build
+```
+
+- Isso sobe o banco, a aplicação NestJS e os testes juntos. A API e o banco são acessíveis dentro e fora do container.
+- Tudo pronto para desenvolvimento local, sem precisar configurar ambiente manualmente.
+
+---
+
+![DOCKER EXAMPLE (PNG)](example/dockerexample.png)
+
+---
+
+## 8. Melhorias para Escalabilidade e Segurança que eu Faria
+
+* **JWT**
+  Usaria tokens de acesso com validade curta (30min) e refresh tokens com validade maior (5 dias), todos definidos no `.env`.
+  A autenticação padrão seria feita via **Bearer Token** no cabeçalho da requisição (`Authorization: Bearer <token>`).
+  Criaria um middleware personalizado para validar esse token:
+
+  ```ts
+  @Injectable()
+  class JwtCustomFilter implements NestMiddleware {
+    constructor(private jwtService: JwtService) {}
+
+    use(req: Request, res: Response, next: NextFunction) {
+      const token = req.headers.authorization?.replace('Bearer ', '');
+      if (!token) throw new UnauthorizedException('Token não fornecido');
+      
+      req.user = this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
+      next();
+    }
+  }
+  ```
+
+  > 🔐 **Alternativa para segurança reforçada:**
+  > Se necessário, implementaria autenticação via **cookies** (em vez de `Authorization: Bearer`) com as seguintes medidas:
+
+    * Cookies com `HttpOnly`, `Secure` e `SameSite=Strict`
+    * Evita vazamento de token para scripts client-side e protege contra **ataques CSRF**
+    * Exemplo de uso com NestJS:
+
+  ```ts
+  @Post('login')
+  async login(@Res({ passthrough: true }) res: Response, @Body() loginDto: LoginDto) {
+    const jwt = this.authService.login(loginDto);
+    res.cookie('access_token', jwt, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 1000 * 60 * 30 // 30 minutos
+    });
+    return { success: true };
+  }
+  ```
+
+* **RBAC (Role-Based Access Control)**
+  Implementaria controle de acesso por papel com `RolesGuard`, definindo pelo menos os papéis `admin` e `user` para separar permissões de administração e uso comum.
+  O papel de cada usuário seria determinado pelo campo `role` já presente na tabela `Users` do banco de dados, garantindo que os acessos sejam baseados nas permissões atribuídas diretamente aos usuários cadastrados.
+
+* **Segurança**
+
+    * Usaria `helmet` para prevenir ataques como XSS.
+    * Cookies com flags seguras (`HttpOnly`, `Secure`, `SameSite=Strict`).
+    * CORS configurado de forma restritiva.
+    * Aplicaria **rate limiting** para mitigar ataques por força bruta e abuso de endpoints.
+
+---
+
+* **Frontend (caso o projeto evolua para fullstack)**
+  Usaria React com:
+
+    * Hooks
+    * React Router
+    * React Query + Axios para consumo de API
+    * Redux junto com Context API para estado global
+    * Tailwind CSS para uma interface responsiva e moderna
+
+* **SEO (se fosse necessário)**
+  Se fosse um projeto que precisa de indexação para busca, usaria Next.js com SSR (Server-Side Rendering) e SSG (Static Site Generation) para garantir boa performance e SEO.
+
+  
 ## 🎯 Funcionalidades
 
 ### **Catálogo de Mídias** (`/media`)

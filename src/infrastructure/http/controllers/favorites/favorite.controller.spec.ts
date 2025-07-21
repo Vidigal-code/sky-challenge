@@ -8,17 +8,28 @@ import {
 import { MediaNotFoundError } from '@/domain/exceptions/medias/media-domain.errors';
 import { UserNotFoundError } from '@/domain/exceptions/users/user-domain.errors';
 import { Medias } from '@/domain/entities/medias/media.entity';
-import { Request } from 'express';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { HttpStatus } from '@nestjs/common';
 import { FavoriteController } from '@/infrastructure/http/controllers/favorites/favorite.controller';
 import { FavoriteService } from '@/application/services/favorites/favorite.service';
 import { ResponseMapperFavoriteService } from '@/application/services/favorites/response-mapper-favorite.service';
 
-describe('FavoritesController', () => {
+const mockRequest = (url: string, method: string): Partial<Request> => ({
+  url,
+  method,
+});
+
+const mockResponse = (): Partial<Response> => {
+  const res: Partial<Response> = {};
+  res.status = jest.fn().mockReturnValue(res);
+  res.json = jest.fn().mockReturnValue(res);
+  res.send = jest.fn().mockReturnValue(res);
+  return res;
+};
+
+describe('FavoriteController', () => {
   let controller: FavoriteController;
   let favoriteService: jest.Mocked<FavoriteService>;
-  let responseMapperFavoriteService: jest.Mocked<ResponseMapperFavoriteService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -32,18 +43,12 @@ describe('FavoritesController', () => {
             remove: jest.fn(),
           },
         },
-        {
-          provide: ResponseMapperFavoriteService,
-          useValue: {
-            toErrorResponse: jest.fn(),
-          },
-        },
+        { provide: ResponseMapperFavoriteService, useValue: {} },
       ],
     }).compile();
 
     controller = module.get<FavoriteController>(FavoriteController);
     favoriteService = module.get(FavoriteService);
-    responseMapperFavoriteService = module.get(ResponseMapperFavoriteService);
   });
 
   it('should be defined', () => {
@@ -51,23 +56,21 @@ describe('FavoritesController', () => {
   });
 
   describe('create', () => {
-    it('should create a favorite', async () => {
+    it('should create a favorite and return no content', async () => {
       const createFavoriteDto: CreateFavoriteDto = { mediaId: 1 };
       const userId = 1;
       const successResponse = {
-        ...FavoriteMessageSuccess.created(userId, '/users/1/favorites', 'POST'),
+        ...FavoriteMessageSuccess.created(
+          userId,
+          `/users/${userId}/favorites`,
+          'POST'
+        ),
         data: null,
       };
+      favoriteService.remove.mockResolvedValue(successResponse);
 
-      favoriteService.create.mockResolvedValue(successResponse);
-      const req: Partial<Request> = {
-        url: '/users/1/favorites',
-        method: 'POST',
-      };
-      const res: Partial<Response> = {
-        status: jest.fn().mockReturnThis(),
-        send: jest.fn(),
-      };
+      const req = mockRequest(`/users/${userId}/favorites`, 'POST');
+      const res = mockResponse();
 
       await controller.create(
         userId,
@@ -81,207 +84,106 @@ describe('FavoritesController', () => {
       expect(favoriteService.create).toHaveBeenCalledWith(
         userId,
         createFavoriteDto,
-        '/users/1/favorites',
-        'POST'
+        req.url,
+        req.method
       );
     });
 
-    it('should handle MediaNotFoundError', async () => {
-      const createFavoriteDto: CreateFavoriteDto = { mediaId: 1 };
+    it('should throw MediaNotFoundError', async () => {
+      const createFavoriteDto: CreateFavoriteDto = { mediaId: 999 };
       const userId = 1;
-      const error = new MediaNotFoundError(1);
-      const errorResponse = {
-        success: false,
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Mídia com ID 1 não encontrada',
-        code: 'MEDIA_NOT_FOUND',
-        timestamp: expect.any(String),
-        path: '/users/1/favorites',
-        method: 'POST',
-      };
-
+      const error = new MediaNotFoundError(999);
       favoriteService.create.mockRejectedValue(error);
-      responseMapperFavoriteService.toErrorResponse.mockReturnValue(
-        errorResponse
-      );
-      const req: Partial<Request> = {
-        url: '/users/1/favorites',
-        method: 'POST',
-      };
-      const res: Partial<Response> = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
 
-      await controller.create(
-        userId,
-        createFavoriteDto,
-        req as Request,
-        res as Response
-      );
+      const req = mockRequest(`/users/${userId}/favorites`, 'POST');
+      const res = mockResponse();
 
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith(errorResponse);
-      expect(favoriteService.create).toHaveBeenCalledWith(
-        userId,
-        createFavoriteDto,
-        '/users/1/favorites',
-        'POST'
-      );
-      expect(
-        responseMapperFavoriteService.toErrorResponse
-      ).toHaveBeenCalledWith(error, '/users/1/favorites', 'POST');
+      await expect(
+        controller.create(
+          userId,
+          createFavoriteDto,
+          req as Request,
+          res as Response
+        )
+      ).rejects.toThrow(error);
     });
 
-    it('should handle FavoriteAlreadyExistsError', async () => {
+    it('should throw FavoriteAlreadyExistsError', async () => {
       const createFavoriteDto: CreateFavoriteDto = { mediaId: 1 };
       const userId = 1;
       const error = new FavoriteAlreadyExistsError();
-      const errorResponse = {
-        success: false,
-        statusCode: 409,
-        error: 'Conflict',
-        message: 'Favorito já existe',
-        code: 'FAVORITE_ALREADY_EXISTS',
-        timestamp: expect.any(String),
-        path: '/users/1/favorites',
-        method: 'POST',
-      };
-
       favoriteService.create.mockRejectedValue(error);
-      responseMapperFavoriteService.toErrorResponse.mockReturnValue(
-        errorResponse
-      );
-      const req: Partial<Request> = {
-        url: '/users/1/favorites',
-        method: 'POST',
-      };
-      const res: Partial<Response> = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
 
-      await controller.create(
-        userId,
-        createFavoriteDto,
-        req as Request,
-        res as Response
-      );
+      const req = mockRequest(`/users/${userId}/favorites`, 'POST');
+      const res = mockResponse();
 
-      expect(res.status).toHaveBeenCalledWith(409);
-      expect(res.json).toHaveBeenCalledWith(errorResponse);
-      expect(favoriteService.create).toHaveBeenCalledWith(
-        userId,
-        createFavoriteDto,
-        '/users/1/favorites',
-        'POST'
-      );
-      expect(
-        responseMapperFavoriteService.toErrorResponse
-      ).toHaveBeenCalledWith(error, '/users/1/favorites', 'POST');
+      await expect(
+        controller.create(
+          userId,
+          createFavoriteDto,
+          req as Request,
+          res as Response
+        )
+      ).rejects.toThrow(error);
     });
   });
 
   describe('findAll', () => {
-    it('should return all favorites', async () => {
+    it('should return all favorites for a user', async () => {
       const userId = 1;
       const medias = [new Medias()];
       const successResponse = {
         ...FavoriteMessageSuccess.retrievedAll(
           userId,
-          '/users/1/favorites',
+          `/users/${userId}/favorites`,
           'GET'
         ),
         data: { medias },
       };
-
       favoriteService.findAll.mockResolvedValue(successResponse);
-      const req: Partial<Request> = {
-        url: '/users/1/favorites',
-        method: 'GET',
-      };
-      const res: Partial<Response> = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
+
+      const req = mockRequest(`/users/${userId}/favorites`, 'GET');
+      const res = mockResponse();
 
       await controller.findAll(userId, req as Request, res as Response);
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith(successResponse);
-      expect(favoriteService.findAll).toHaveBeenCalledWith(
-        userId,
-        '/users/1/favorites',
-        'GET'
-      );
     });
 
-    it('should handle UserNotFoundError', async () => {
-      const userId = 1;
+    it('should throw UserNotFoundError', async () => {
+      const userId = 999;
       const error = new UserNotFoundError(userId);
-      const errorResponse = {
-        success: false,
-        statusCode: 404,
-        error: 'Not Found',
-        message: `Usuário com ID ${userId} não encontrado`,
-        code: 'USER_NOT_FOUND',
-        timestamp: expect.any(String),
-        path: '/users/1/favorites',
-        method: 'GET',
-      };
-
       favoriteService.findAll.mockRejectedValue(error);
-      responseMapperFavoriteService.toErrorResponse.mockReturnValue(
-        errorResponse
-      );
-      const req: Partial<Request> = {
-        url: '/users/1/favorites',
-        method: 'GET',
-      };
-      const res: Partial<Response> = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
 
-      await controller.findAll(userId, req as Request, res as Response);
+      const req = mockRequest(`/users/${userId}/favorites`, 'GET');
+      const res = mockResponse();
 
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith(errorResponse);
-      expect(favoriteService.findAll).toHaveBeenCalledWith(
-        userId,
-        '/users/1/favorites',
-        'GET'
-      );
-      expect(
-        responseMapperFavoriteService.toErrorResponse
-      ).toHaveBeenCalledWith(error, '/users/1/favorites', 'GET');
+      await expect(
+        controller.findAll(userId, req as Request, res as Response)
+      ).rejects.toThrow(error);
     });
   });
 
   describe('remove', () => {
-    it('should remove a favorite', async () => {
+    it('should remove a favorite and return no content', async () => {
       const userId = 1;
       const mediaId = 1;
       const successResponse = {
-        ...FavoriteMessageSuccess.removed(
+        ...FavoriteMessageSuccess.created(
           userId,
-          mediaId,
-          '/users/1/favorites/1',
-          'DELETE'
+          `/users/${userId}/favorites/${mediaId}`,
+          'POST'
         ),
         data: null,
       };
-
       favoriteService.remove.mockResolvedValue(successResponse);
-      const req: Partial<Request> = {
-        url: '/users/1/favorites/1',
-        method: 'DELETE',
-      };
-      const res: Partial<Response> = {
-        status: jest.fn().mockReturnThis(),
-        send: jest.fn(),
-      };
+
+      const req = mockRequest(
+        `/users/${userId}/favorites/${mediaId}`,
+        'DELETE'
+      );
+      const res = mockResponse();
 
       await controller.remove(userId, mediaId, req as Request, res as Response);
 
@@ -290,52 +192,26 @@ describe('FavoritesController', () => {
       expect(favoriteService.remove).toHaveBeenCalledWith(
         userId,
         mediaId,
-        '/users/1/favorites/1',
-        'DELETE'
+        req.url,
+        req.method
       );
     });
 
-    it('should handle FavoriteNotFoundError', async () => {
+    it('should throw FavoriteNotFoundError', async () => {
       const userId = 1;
-      const mediaId = 1;
+      const mediaId = 999;
       const error = new FavoriteNotFoundError();
-      const errorResponse = {
-        success: false,
-        statusCode: 404,
-        error: 'Not Found',
-        message: 'Favorito não encontrado',
-        code: 'FAVORITE_NOT_FOUND',
-        timestamp: expect.any(String),
-        path: '/users/1/favorites/1',
-        method: 'DELETE',
-      };
-
       favoriteService.remove.mockRejectedValue(error);
-      responseMapperFavoriteService.toErrorResponse.mockReturnValue(
-        errorResponse
-      );
-      const req: Partial<Request> = {
-        url: '/users/1/favorites/1',
-        method: 'DELETE',
-      };
-      const res: Partial<Response> = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
 
-      await controller.remove(userId, mediaId, req as Request, res as Response);
-
-      expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith(errorResponse);
-      expect(favoriteService.remove).toHaveBeenCalledWith(
-        userId,
-        mediaId,
-        '/users/1/favorites/1',
+      const req = mockRequest(
+        `/users/${userId}/favorites/${mediaId}`,
         'DELETE'
       );
-      expect(
-        responseMapperFavoriteService.toErrorResponse
-      ).toHaveBeenCalledWith(error, '/users/1/favorites/1', 'DELETE');
+      const res = mockResponse();
+
+      await expect(
+        controller.remove(userId, mediaId, req as Request, res as Response)
+      ).rejects.toThrow(error);
     });
   });
 });

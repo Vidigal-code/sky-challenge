@@ -8,6 +8,7 @@ import { FavoriteService } from '@/application/services/favorites/favorite.servi
 import { ResponseMapperFavoriteService } from '@/application/services/favorites/response-mapper-favorite.service';
 import { TypeormFavoriteRepository } from '@/infrastructure/database/repositories/typeorms/favorites/typeorm-favorite.repository';
 import { UserModule } from '@/infrastructure/http/modules/users/user.module';
+import { FavoriteDomainExceptionFilter } from '@/infrastructure/filters/favorites/favorite-domain-exception.filter';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UserModule } from '@/infrastructure/http/modules/users/user.module';
   providers: [
     FavoriteService,
     ResponseMapperFavoriteService,
+    FavoriteDomainExceptionFilter,
     {
       provide: 'FavoriteRepository',
       useClass: TypeormFavoriteRepository,

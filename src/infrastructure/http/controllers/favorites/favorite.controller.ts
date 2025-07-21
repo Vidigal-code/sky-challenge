@@ -9,19 +9,18 @@ import {
   Res,
   ParseIntPipe,
   HttpStatus,
+  UseFilters,
 } from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
 import { Response } from 'express';
 import { FavoriteService } from '@/application/services/favorites/favorite.service';
 import { CreateFavoriteDto } from '@/application/dtos/favorites/create-favorite.dto';
-import { ResponseMapperFavoriteService } from '@/application/services/favorites/response-mapper-favorite.service';
+import { FavoriteDomainExceptionFilter } from '@/infrastructure/filters/favorites/favorite-domain-exception.filter';
 
 @Controller('users/:userId/favorites')
+@UseFilters(FavoriteDomainExceptionFilter)
 export class FavoriteController {
-  constructor(
-    private readonly favoriteService: FavoriteService,
-    private readonly responseMapperFavoriteService: ResponseMapperFavoriteService
-  ) {}
+  constructor(private readonly favoriteService: FavoriteService) {}
 
   @Post()
   async create(
@@ -30,22 +29,13 @@ export class FavoriteController {
     @Request() req: ExpressRequest,
     @Res() res: Response
   ): Promise<void> {
-    try {
-      await this.favoriteService.create(
-        userId,
-        createFavoriteDto,
-        req.url,
-        req.method
-      );
-      res.status(HttpStatus.NO_CONTENT).send();
-    } catch (error) {
-      const response = this.responseMapperFavoriteService.toErrorResponse(
-        error,
-        req.url,
-        req.method
-      );
-      res.status(response.statusCode).json(response);
-    }
+    await this.favoriteService.create(
+      userId,
+      createFavoriteDto,
+      req.url,
+      req.method
+    );
+    res.status(HttpStatus.NO_CONTENT).send();
   }
 
   @Get()
@@ -54,21 +44,12 @@ export class FavoriteController {
     @Request() req: ExpressRequest,
     @Res() res: Response
   ): Promise<void> {
-    try {
-      const response = await this.favoriteService.findAll(
-        userId,
-        req.url,
-        req.method
-      );
-      res.status(response.statusCode).json(response);
-    } catch (error) {
-      const response = this.responseMapperFavoriteService.toErrorResponse(
-        error,
-        req.url,
-        req.method
-      );
-      res.status(response.statusCode).json(response);
-    }
+    const response = await this.favoriteService.findAll(
+      userId,
+      req.url,
+      req.method
+    );
+    res.status(response.statusCode).json(response);
   }
 
   @Delete(':mediaId')
@@ -78,16 +59,7 @@ export class FavoriteController {
     @Request() req: ExpressRequest,
     @Res() res: Response
   ): Promise<void> {
-    try {
-      await this.favoriteService.remove(userId, mediaId, req.url, req.method);
-      res.status(HttpStatus.NO_CONTENT).send();
-    } catch (error) {
-      const response = this.responseMapperFavoriteService.toErrorResponse(
-        error,
-        req.url,
-        req.method
-      );
-      res.status(response.statusCode).json(response);
-    }
+    await this.favoriteService.remove(userId, mediaId, req.url, req.method);
+    res.status(HttpStatus.NO_CONTENT).send();
   }
 }

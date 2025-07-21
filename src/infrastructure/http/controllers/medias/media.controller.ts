@@ -7,22 +7,19 @@ import {
   ParseIntPipe,
   Request,
   Res,
+  UseFilters,
 } from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
 import { Response } from 'express';
 import { MediaService } from '@/application/services/medias/media.service';
 import { CreateMediaDto } from '@/application/dtos/medias/create-media.dto';
-import { ResponseMapperMediaService } from '@/application/services/medias/response-mapper-media.service';
-import { LangDomainError } from '@/domain/exceptions/langs/lang-domain.errors';
-import { ResponseMapperLangService } from '@/application/services/langs/response-mapper-lang.service';
+import { MediaDomainExceptionFilter } from '@/infrastructure/filters/medias/media-domain-exception.filter';
+import { LangDomainExceptionFilter } from '@/infrastructure/filters/langs/lang-domain-exception.filter';
 
 @Controller('media')
+@UseFilters(MediaDomainExceptionFilter, LangDomainExceptionFilter)
 export class MediaController {
-  constructor(
-    private readonly mediaService: MediaService,
-    private readonly responseMapperMediaService: ResponseMapperMediaService,
-    private readonly responseMapperLangService: ResponseMapperLangService
-  ) {}
+  constructor(private readonly mediaService: MediaService) {}
 
   @Post()
   async create(
@@ -30,21 +27,12 @@ export class MediaController {
     @Request() req: ExpressRequest,
     @Res() res: Response
   ): Promise<void> {
-    try {
-      const response = await this.mediaService.create(
-        createMediaDto,
-        req.url,
-        req.method
-      );
-      res.status(response.statusCode).json(response);
-    } catch (error) {
-      const response = this.responseMapperMediaService.toErrorResponse(
-        error,
-        req.url,
-        req.method
-      );
-      res.status(response.statusCode).json(response);
-    }
+    const response = await this.mediaService.create(
+      createMediaDto,
+      req.url,
+      req.method
+    );
+    res.status(response.statusCode).json(response);
   }
 
   @Get()
@@ -52,17 +40,8 @@ export class MediaController {
     @Request() req: ExpressRequest,
     @Res() res: Response
   ): Promise<void> {
-    try {
-      const response = await this.mediaService.findAll(req.url, req.method);
-      res.status(response.statusCode).json(response);
-    } catch (error) {
-      const response = this.responseMapperMediaService.toErrorResponse(
-        error,
-        req.url,
-        req.method
-      );
-      res.status(response.statusCode).json(response);
-    }
+    const response = await this.mediaService.findAll(req.url, req.method);
+    res.status(response.statusCode).json(response);
   }
 
   @Get(':id')
@@ -71,17 +50,8 @@ export class MediaController {
     @Request() req: ExpressRequest,
     @Res() res: Response
   ): Promise<void> {
-    try {
-      const response = await this.mediaService.findOne(id, req.url, req.method);
-      res.status(response.statusCode).json(response);
-    } catch (error) {
-      const response = this.responseMapperMediaService.toErrorResponse(
-        error,
-        req.url,
-        req.method
-      );
-      res.status(response.statusCode).json(response);
-    }
+    const response = await this.mediaService.findOne(id, req.url, req.method);
+    res.status(response.statusCode).json(response);
   }
 
   @Get('lang/:langCode')
@@ -90,29 +60,11 @@ export class MediaController {
     @Request() req: ExpressRequest,
     @Res() res: Response
   ): Promise<void> {
-    try {
-      const response = await this.mediaService.findAllByLang(
-        langCode,
-        req.url,
-        req.method
-      );
-      res.status(response.statusCode).json(response);
-    } catch (error) {
-      if (error instanceof LangDomainError) {
-        const response = this.responseMapperLangService.toErrorResponse(
-          error,
-          req.url,
-          req.method
-        );
-        res.status(response.statusCode).json(response);
-      } else {
-        const response = this.responseMapperMediaService.toErrorResponse(
-          error,
-          req.url,
-          req.method
-        );
-        res.status(response.statusCode).json(response);
-      }
-    }
+    const response = await this.mediaService.findAllByLang(
+      langCode,
+      req.url,
+      req.method
+    );
+    res.status(response.statusCode).json(response);
   }
 }

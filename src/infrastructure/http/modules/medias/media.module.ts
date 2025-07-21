@@ -8,6 +8,8 @@ import { LoggerModule } from '@/shared/modules/loggers/logger.module';
 import { LangModule } from '@/infrastructure/http/modules/langs/lang.module';
 import { FavoriteModule } from '@/infrastructure/http/modules/favorites/favorite.module';
 import { TypeOrmMediaRepository } from '@/infrastructure/database/repositories/typeorms/medias/typeorm-media.repository';
+import { MediaDomainExceptionFilter } from '@/infrastructure/filters/medias/media-domain-exception.filter';
+import { LangDomainExceptionFilter } from '@/infrastructure/filters/langs/lang-domain-exception.filter';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { TypeOrmMediaRepository } from '@/infrastructure/database/repositories/t
   providers: [
     MediaService,
     ResponseMapperMediaService,
+    LangDomainExceptionFilter,
+    MediaDomainExceptionFilter,
     {
       provide: 'MediaRepository',
       useClass: TypeOrmMediaRepository,
