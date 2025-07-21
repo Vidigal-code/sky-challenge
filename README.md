@@ -137,7 +137,7 @@ A arquitetura atual é o ponto de partida ideal. Ela permite adicionar novos end
 - ✅ **GET** - Listar todo o catálogo
 - ✅ **GET** `/:id` - Buscar mídia específica
 
-👉 [Exemplos e Explicações dos Endpoints de Mídia ](https://)
+👉 [Exemplos e Explicações dos Endpoints de Mídia ](https://github.com/Vidigal-code/sky-challenge/tree/main/example/mediaexample)
 
 
 ### **Favoritos do Usuário** (`/users/:userId/favorites`)
