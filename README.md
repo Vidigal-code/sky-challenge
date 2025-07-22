@@ -89,6 +89,8 @@ Este documento resume o estado atual da arquitetura do projeto e serve como um g
 
 A arquitetura atual **é uma excelente base inicial** para um projeto que pretende escalar, pois já adota práticas fundamentais do **Domain-Driven Design (DDD)** e da **Clean Architecture**. Ela não é apenas um protótipo, mas uma fundação robusta pronta para crescer.
 
+Este projeto utiliza uma estrutura de pastas baseada em DDD (Domain Driven Design) e princípios da Clean Architecture e SOLID para fins de estudo e demonstração. Embora essa abordagem possa ser excessiva para projetos simples, ela oferece uma separação clara de responsabilidades, facilita a escalabilidade e promove boas práticas de desenvolvimento
+
 ## ✅ O Que Já Temos (Boas Práticas DDD Implementadas)
 
 A estrutura atual segue princípios essenciais que garantem organização, testabilidade e baixo acoplamento:
